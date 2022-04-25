@@ -1,20 +1,19 @@
 import pandas as pd
+import pickle as pkl
 
-train_data_split = pd.read_csv('ClariQ-master/data/train.tsv', sep="\t")
-dev_data_split = pd.read_csv('ClariQ-master/data/dev.tsv', sep="\t")
+for split in ('train', 'dev', 'test'):
 
-train_data = pd.concat([train_data_split, dev_data_split], sort=False)
+    train_data = pd.read_csv(f'ClariQ-master/data/{split}.tsv', sep="\t")
 
-# initial_requests = pd.DataFrame(train_data['initial_request'].unique())
-initial_requests = train_data[['topic_id', 'initial_request']].drop_duplicates().set_index('topic_id')
+    initial_requests = train_data[['topic_id', 'initial_request']].drop_duplicates().set_index('topic_id')
 
-initial_requests.to_csv(
-    'ClariQ-master/parsed/train-queries.tsv',
-    sep="\t",
-    header=None
-)
+    initial_requests.to_csv(
+        f'ClariQ-master/parsed/{split}-queries.tsv',
+        sep="\t",
+        header=None
+    )
 
-# %% Construct Collection
+# %% Construct Collection and Question ID Map
 
 question_bank = pd.read_csv('ClariQ-master/data/question_bank.tsv', sep="\t", index_col="question_id")
 question_bank.dropna(inplace=True)
@@ -28,6 +27,9 @@ question_bank.to_csv(
     header=None
 )
 
+question_id_table_rev = {val: key for (key, val) in question_id_table.items()}
+with open('ClariQ-master/parsed/question_id_map.pkl', mode='wb') as f:
+    pkl.dump(question_id_table_rev, f)
 
 # %% Construct triples
 
