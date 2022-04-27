@@ -7,11 +7,13 @@ import ast
 
 global_required = ['experiment']
 
+
 def get_arg(arg: str):
     all_args = argparse.ArgumentParser()
     all_args.add_argument(f'--{arg}', required=True)
 
     return list(vars(all_args.parse_known_args()[0]).values())[0]
+
 
 def _config_from_args(
         config_obj: Callable,
@@ -48,23 +50,6 @@ def run_config_from_args(required = None) -> RunConfig:
     }
 
     return _config_from_args(RunConfig, params, required=required)
-
-    # for param, default in params.items():
-    #     env_param = os.getenv(f'colbert_{param}')
-    #     params[param] = type(default)(env_param or default) if default else env_param
-
-    # config_str = os.getenv('colbert_config')
-    # config_params = ast.literal_eval(config_str) if config_str else dict()
-
-    # config_params['experiment'] = os.getenv('colbert_experiment') or 'default'
-
-    # if 'nranks' not in config_params:
-    #     config_params['nranks'] = 1
-
-    # if as_dict:
-    #     return params
-    # else:
-    #     return RunConfig(**params)
 
 
 def colbert_config_from_args(required = None) -> ColBERTConfig:
