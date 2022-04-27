@@ -25,7 +25,8 @@ if __name__ == '__main__':
             for line in tqdm(f, desc=f'Processing {file_name}', total=file_len):
                 if check_line(line):
                     processed = process_line(line)
-                    corpus.append(processed)
+                    if len(processed) > 1:
+                        corpus.append(processed)
 
     output_path = f'data/{dataset_name}'
     if not os.path.exists(output_path):
