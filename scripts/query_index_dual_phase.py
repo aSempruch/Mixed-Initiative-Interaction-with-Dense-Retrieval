@@ -16,6 +16,9 @@ first_index_name = get_arg('first_index_name')
 second_index_name = get_arg('second_index_name')
 data_path = get_arg('data_path')
 
+# number of passages to concat when searching second index
+concat_passages = get_arg('concat_passages', int)
+
 run_config = run_config_from_args()
 
 # %%
@@ -45,16 +48,15 @@ if __name__ == '__main__':
         # queries = pd.read_csv('ClariQ-master/parsed/test-queries.tsv', sep='\t', index_col=0, header=None)
         queries = pd.read_csv(f'ClariQ-master/parsed/{split}-queries.tsv', sep='\t', index_col=0, header=None)
         queries_as_dict = {key: vals[0] for (key, vals) in queries.T.to_dict('list').items()}
-        iter_results = searchers[0].search_all(queries_as_dict, k=1)
+        iter_results = searchers[0].search_all(queries_as_dict, k=concat_passages)
 
-        iter_queries = dict()
         results = dict()
-        for topic_id, result in tqdm(iter_results.data.items(), desc='Querying second model'):
-            top_document_id = result[0][0]
+        for topic_id, result in tqdm(iter_results.data.items(), desc='Querying second index'):
+            top_document_ids = list(zip(*result))[0]
             # iter_queries[top_document_id] = collection.loc[top_document_id][1]
-            iter_query = collection.loc[top_document_id][1]
+            iter_queries = collection.loc[list(top_document_ids)][1].values
 
-            result = searchers[1].search(iter_query, k=30)
+            result = searchers[1].search("\n".join(iter_queries), k=30)
             results[topic_id] = list(zip(*result))
         # Query second colbert model with results of first model
 

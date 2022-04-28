@@ -8,9 +8,9 @@ import ast
 global_required = ['experiment']
 
 
-def get_arg(arg: str):
+def get_arg(arg: str, data_type=str):
     all_args = argparse.ArgumentParser()
-    all_args.add_argument(f'--{arg}', required=True)
+    all_args.add_argument(f'--{arg}', required=True, type=data_type)
 
     return list(vars(all_args.parse_known_args()[0]).values())[0]
 
