@@ -1,7 +1,7 @@
 import pandas as pd
 import pickle as pkl
 
-for split in ('train', 'dev', 'test'):
+for split in ('dev', 'test', 'train'):
 
     train_data = pd.read_csv(f'ClariQ-master/data/{split}.tsv', sep="\t")
 
@@ -16,6 +16,7 @@ for split in ('train', 'dev', 'test'):
 # %% Construct Collection and Question ID Map
 
 question_bank = pd.read_csv('ClariQ-master/data/question_bank.tsv', sep="\t", index_col="question_id")
+# question_bank = pd.read_csv('ClariQ-master/parsed/question_bank.tsv', sep="\t", header=None, index_col=0)
 question_bank.dropna(inplace=True)
 
 question_id_table = {q_idx: idx for idx, (q_idx, _) in enumerate(question_bank.iterrows())}

@@ -1,18 +1,17 @@
 import faiss
 import pickle as pkl
 from tqdm import tqdm
-import sys
 import os
 
+from util import get_arg
 from util.wikitext_proc import check_line, process_line
-
-# re_is_info_snippet = re.compile('\(.*?\).*?-')
-
 
 if __name__ == '__main__':
     corpus = list()
 
-    dataset_path = sys.argv[1]
+    # append_queries = get_arg('append_queries')
+    append_queries = False
+    dataset_path = get_arg('dataset_path')
     dataset_name = dataset_path.split('/')[-1]
 
     for file_name in os.listdir(dataset_path):
@@ -32,13 +31,13 @@ if __name__ == '__main__':
     if not os.path.exists(output_path):
         os.makedirs(output_path)
 
-    with open(f'{output_path}/corpus.pkl', mode='wb') as f:
+    with open(f'{output_path}/corpus{"_append_queries" if append_queries else ""}.pkl', mode='wb') as f:
         pkl.dump(corpus, f)
 
-    with open(f'{output_path}/collection.tsv', mode='w') as f:
+    with open(f'{output_path}/collection{"_append_queries" if append_queries else ""}.tsv', mode='w') as f:
         for idx, doc in enumerate(corpus):
             f.write(f'{idx}\t{" ".join(doc)}\n')
 
     doc_to_id_map = {" ".join(doc): idx for (idx, doc) in enumerate(corpus)}
-    with open(f'{output_path}/doc_to_id_map.pkl', mode='wb') as f:
+    with open(f'{output_path}/doc_to_id_map{"_append_queries" if append_queries else ""}.pkl', mode='wb') as f:
         pkl.dump(doc_to_id_map, f)

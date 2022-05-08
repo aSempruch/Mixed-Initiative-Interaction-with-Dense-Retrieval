@@ -18,6 +18,7 @@ data_path = get_arg('data_path')
 
 # number of passages to concat when searching second index
 concat_passages = get_arg('concat_passages', int)
+appended = get_arg('appended', bool)
 
 run_config = run_config_from_args()
 
@@ -51,10 +52,13 @@ if __name__ == '__main__':
         iter_results = searchers[0].search_all(queries_as_dict, k=concat_passages)
 
         results = dict()
-        for topic_id, result in tqdm(iter_results.data.items(), desc='Querying second index'):
-            top_document_ids = list(zip(*result))[0]
+        for topic_id, iter_result in tqdm(iter_results.data.items(), desc='Querying second index'):
+            top_document_ids = list(zip(*iter_result))[0]
             # iter_queries[top_document_id] = collection.loc[top_document_id][1]
             iter_queries = collection.loc[list(top_document_ids)][1].values
+
+            if appended:
+                iter_queries[0] = " ".join([queries_as_dict[topic_id], iter_queries[0]])
 
             result = searchers[1].search("\n".join(iter_queries), k=30)
             results[topic_id] = list(zip(*result))

@@ -6,15 +6,12 @@ from rank_bm25 import BM25Okapi
 from tqdm import tqdm
 import numpy as np
 
+from util import get_arg
 from util.wikitext_proc import process_line
 # %%
 
-arg_parser = argparse.ArgumentParser()
-arg_parser.add_argument('--data_path', required=True)
-
-args = vars(arg_parser.parse_args())
-
-data_path = args['data_path']
+data_path = get_arg('data_path')
+experiment = get_arg('experiment')
 
 # %%
 
@@ -40,7 +37,7 @@ corpus_len = len(corpus)
 
 # %% First phase (request, document) triples
 print('Phase 1')
-with open(f'{first_path}/triples_random_negatives.jsonl', mode='w') as f:
+with open(f'{first_path}/triples_{experiment}.jsonl', mode='w') as f:
 
     for question_id, question in tqdm(train_queries.itertuples(), total=train_queries.shape[0], desc='Constructing random negative triples'):
         proc_query = process_line(question)
@@ -53,7 +50,7 @@ with open(f'{first_path}/triples_random_negatives.jsonl', mode='w') as f:
 
 # %% Second phase (document, question) triples
 print('Phase 2')
-with open(f'{second_path}/triples_random_negatives.jsonl', mode='w') as f:
+with open(f'{second_path}/triples_{experiment}.jsonl', mode='w') as f:
 
     for question_id, question in tqdm(question_bank.itertuples(), total=question_bank.shape[0], desc='Constructing random negative triples'):
         proc_query = process_line(question)
@@ -63,3 +60,6 @@ with open(f'{second_path}/triples_random_negatives.jsonl', mode='w') as f:
         random_negative_question_id = question_bank.sample(n=1).index[0]
 
         f.write(f'[{passage_id}, {question_id}, {random_negative_question_id}]\n')
+
+    # TODO: make a separate script where you query first colbert model with initial request, then concat the query with the returned doc and add it to queries file
+    # train the model on these triples then
