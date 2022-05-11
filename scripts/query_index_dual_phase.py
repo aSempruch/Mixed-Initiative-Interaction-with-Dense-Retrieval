@@ -33,12 +33,6 @@ collection = pd.read_csv(f'{data_path}/collection.tsv', sep='\t', header=None, i
 
 if __name__ == '__main__':
 
-    # arg_parser = argparse.ArgumentParser()
-    # arg_parser.add_argument('--mode', choices=['clariq', 'colbert'], required=True)
-    #
-    # args = vars(arg_parser.parse_args())
-    # mode = args['mode']
-
     with open('ClariQ-master/parsed/question_id_map.pkl', mode='rb') as f:
         question_id_map = pkl.load(f)
 

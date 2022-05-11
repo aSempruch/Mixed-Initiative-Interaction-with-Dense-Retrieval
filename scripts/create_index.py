@@ -7,9 +7,6 @@ import pandas as pd
 import os
 
 # %%
-# collection = os.environ['colbert_collection']
-# checkpoint = os.environ['colbert_checkpoint']
-# index_name = os.environ['colbert_index_name']
 
 collection = get_arg('colbert_collection')
 checkpoint = get_arg('colbert_checkpoint')

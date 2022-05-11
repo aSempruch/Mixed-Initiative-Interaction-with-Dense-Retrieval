@@ -26,11 +26,9 @@ if __name__ == '__main__':
         searcher = Searcher(index=index_name)
 
     for split in ('train', 'dev', 'test'):
-        # queries = pd.read_csv('ClariQ-master/parsed/test-queries.tsv', sep='\t', index_col=0, header=None)
         queries = pd.read_csv(f'ClariQ-master/parsed/{split}-queries.tsv', sep='\t', index_col=0, header=None)
         queries_as_dict = {key:vals[0] for (key, vals) in queries.T.to_dict('list').items()}
         results = searcher.search_all(queries_as_dict, k=30)
-        # results = searcher.search_all({1: 'test query'}, k=30)
 
         result_path = f'results/{run_config.experiment}/{index_name}'
 
