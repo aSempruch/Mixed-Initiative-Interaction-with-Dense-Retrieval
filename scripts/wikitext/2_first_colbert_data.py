@@ -12,6 +12,7 @@ from util.wikitext_proc import process_line
 
 data_path = get_arg('data_path')
 experiment = get_arg('experiment')
+sampling = get_arg('sampling')
 
 # %%
 
@@ -39,14 +40,29 @@ corpus_len = len(corpus)
 print('Phase 1')
 with open(f'{first_path}/triples_{experiment}.jsonl', mode='w') as f:
 
-    for question_id, question in tqdm(train_queries.itertuples(), total=train_queries.shape[0], desc='Constructing random negative triples'):
+    for question_id, question in tqdm(train_queries.itertuples(), total=train_queries.shape[0], desc=f'Constructing {sampling} triples'):
         proc_query = process_line(question)
-        passage_tokenized = bm25.get_top_n(proc_query, corpus, n=1)[0]
 
-        passage_id = doc_to_id_map[" ".join(passage_tokenized)]
-        random_negative_question_id = np.random.randint(0, corpus_len)
+        if sampling == 'random_negative':
+            passage_tokenized = bm25.get_top_n(proc_query, corpus, n=1)[0]
 
-        f.write(f'[{question_id}, {passage_id}, {random_negative_question_id}]\n')
+            passage_id = doc_to_id_map[" ".join(passage_tokenized)]
+            random_negative_passage_id = np.random.randint(0, corpus_len)
+            negative_passage_id = random_negative_passage_id
+
+        elif sampling == 'low_ranked':
+            bm25_results = bm25.get_top_n(proc_query, corpus, n=100)
+
+            passage_tokenized = bm25_results[0]
+            passage_id = doc_to_id_map[" ".join(passage_tokenized)]
+
+            negative_passage_tokenized = bm25_results[-1]
+            negative_passage_id = doc_to_id_map[" ".join(negative_passage_tokenized)]
+
+        else:
+            raise ValueError(f'Invalid sampling strategy {sampling}')
+
+        f.write(f'[{question_id}, {passage_id}, {negative_passage_id}]\n')
 
 # %% Second phase (document, question) triples
 print('Phase 2')
@@ -61,5 +77,3 @@ with open(f'{second_path}/triples_{experiment}.jsonl', mode='w') as f:
 
         f.write(f'[{passage_id}, {question_id}, {random_negative_question_id}]\n')
 
-    # TODO: make a separate script where you query first colbert model with initial request, then concat the query with the returned doc and add it to queries file
-    # train the model on these triples then
