@@ -44,15 +44,13 @@ corpus_len = len(corpus)
 
 run_config = run_config_from_args()
 
-# TODO: run config args
 with Run().context(run_config):
     searcher = Searcher(index=index_name)
 
 with open(f'{second_path}/triples_{experiment}.jsonl', mode='w') as f:
     append_queries_dict = dict()
     for idx, (request_id, request) in enumerate(tqdm(train_queries.itertuples(), total=train_queries.shape[0], desc='Constructing random negative triples')):
-        result = searcher.search(request, k=1)  # TODO: parametrize k
-        # TODO: create new queries file that has concatenated queries to passages
+        result = searcher.search(request, k=1)
         top_document_id = result[0][0]
 
         positives = train_data[
